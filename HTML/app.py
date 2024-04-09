@@ -146,12 +146,15 @@ def register():
 
         if not first_name or not last_name or not email or not phone or not password or not confirm_password:
             return jsonify(error='All fields are required!')
+        
+        if get_user(email):
+            return jsonify(error='Email is already in use!')
 
         if password != confirm_password:
             return jsonify(error='Passwords do not match!')
 
         verification_token = ''.join(random.choices(string.digits, k=6))
-        send_verification_email(email, verification_token)
+        send_verification_email(email, verification_token)  # Moved this line here
         session['verification_token'] = verification_token
         session['user_data'] = {
             'first_name': first_name,
@@ -175,7 +178,7 @@ def verify():
     user_data = session.get('user_data')
 
     if not user_data:
-        return jsonify(error='User data not found. Please try registering again.')
+        return jsonify(success=False, error='User data not found. Please try registering again.')
 
     if stored_verification_token == code:
         insert_user(user_data['first_name'], user_data['last_name'], user_data['email'], user_data['phone'], user_data['password'])
@@ -184,9 +187,9 @@ def verify():
         session.pop('verification_token', None)
         session.pop('user_data', None)
 
-        return jsonify(message='Verification successful!')
+        return jsonify(success=True, message='Verification successful')
     else:
-        return jsonify(error='Invalid verification code.')
+        return jsonify(success=False, error='Invalid verification code.')
 
 def send_verification_email(email, verification_token):
     msg = MIMEText(f'Your verification code is: {verification_token}')
