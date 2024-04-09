@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Registration |  Debug Force</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Favicons -->
+  <link href="/static/assets/img/favicon.png" rel="icon">
+  <link href="/static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="/static/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="/static/assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+
+      <a href="index.html" class="logo d-flex align-items-center">
+        <img src="/static/assets/img/logo.png" alt="">
+      </a>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#;">Product</a></li>
+          <li><a class="nav-link scrollto" href="#;">Company</a></li>
+          <li><a class="nav-link scrollto" href="#;">Brands</a></li>
+          <li><a class="nav-link scrollto" href="#;">Contact</a></li>
+          <li><a class="nav-link scrollto" href="#;">Team</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+<div class="hraderright">
+  <ul id="navbar1" class="navbar list-none">
+         <li><a class="nav-link scrollto" href="/login">Login</a></li>
+          <li><a class="getstarted scrollto" href="/register">Registration</a></li>
+  </ul>
+  
+</div>
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section  class="sectionone d-flex align-items-center">
+
+    <div class="container ">
+      <div class="row">
+        <div class="col-md-4 col-sm-4 login-img">
+          <img src="/static/assets/img/registration.png" alt="">
+        </div>
+        <div class="col-lg-7 col-sm-7 mx-auto my-auto fomrsection aos-init aos-animate" data-aos="zoom-out" data-aos-delay="200">
+              <div class="forminner">
+
+                <div class="formtitle">
+                  <h3>Sign up</h3>
+                  <p>Let’s get you all st up so you can access your personal account.</p>
+                </div>
+                <div id="error-message" style="color: red;"></div>
+                <script>
+                    $(document).ready(function(){
+                        $('#registration-form').submit(function(event){
+                            event.preventDefault();
+                            
+                            $.ajax({
+                                url: '/register',
+                                method: 'POST',
+                                data: $(this).serialize(),
+                                success: function(response){
+                                    if(response.error){
+                                        $('#error-message').text(response.error).show();
+                                    }
+                                }
+                            });
+                        });
+                    });
+                </script>
+                <div class="fomrbox">
+                  
+                  <form id="registration-form" action="/register" method="post">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <div class="form-floating mb-3">
+                          <input type="text" class="form-control" id="floatingInput" placeholder="First Name" name="first_name" required>
+                          <label for="floatingInput">First Name</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating mb-3">
+                          <input type="text" class="form-control" id="floatingInput" placeholder="Last Name" name="last_name" required>
+                          <label for="floatingInput">Last Name</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating mb-3">
+                          <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email" required>
+                          <label for="floatingInput">Email address</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating mb-3">
+                          <input type="tel" class="form-control" id="floatingInput" placeholder="Phone" name="phone" required>
+                          <label for="floatingInput">Phone</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-floating mb-3">
+                          <input type="password" class="form-control" id="floatingInput" placeholder="Password" name="password" required>
+                          <label for="floatingInput">Password</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-floating mb-3">
+                          <input type="password" class="form-control" id="floatingInput" placeholder="Confirm Password" name="confirm_password" required>
+                          <label for="floatingInput">Confirm Password</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" required>
+                        <label class="form-check-label" for="flexCheckDefault">
+                          I agree to all the <a href="#;">Terms</a> and <a href="#;">Privacy Policies</a>
+                        </label>
+                      </div>
+                      </div>
+
+                      <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="createAccountBtn">Create Account</button>
+                        <div class="alreadyacc">Already have an account? <a href="/login">Login</a></div>
+                      </div>
+
+                    </div>
+                  </form>
+                </div>  
+              </div>
+         </div>
+
+      </div>
+    </div>
+<!-- Verification Modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title varificationHeader" id="verificationModalLabel">Verification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <p><span class="small-text">Verification code sent to: </span><span id="emailDisplay"></span></p>
+              <div id="errorContainer" style="color: red;"></div>
+              <div class="mb-3">
+                  <label for="verificationCode" class="form-label">Verification Code</label>
+                  <input type="text" class="form-control" id="verificationCode" required>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="verifyCodeBtn">Verify</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const createAccountBtn = document.getElementById('createAccountBtn');
+    const registrationForm = document.getElementById('registration-form');
+    const emailInput = document.querySelector('input[name="email"]');
+    const verificationModalLabel = document.getElementById('verificationModalLabel');
+    const emailDisplay = document.getElementById('emailDisplay');
+    const verificationCodeInput = document.getElementById('verificationCode');
+    const termsCheckbox = document.getElementById('flexCheckDefault');
+    const errorContainer = document.getElementById('errorContainer');
+
+    // Disable the Create Account button initially
+    createAccountBtn.disabled = true;
+
+    registrationForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      $.ajax({
+        url: '/register',
+        method: 'POST',
+        data: $(registrationForm).serialize(),
+        success: function(response) {
+          if (response.verification_code) {
+            $('#verificationModal').modal('show');
+            emailDisplay.textContent = emailInput.value;
+          } else if (response.error) {
+            $(errorContainer).text(response.error).show();
+          }
+        },
+        error: function() {
+          $(errorContainer).text("Error occurred while registering.").show();
+        }
+      });
+    });
+
+    $('#verifyCodeBtn').click(function() {
+      let email = emailDisplay.textContent;
+      let code = verificationCodeInput.value;
+
+      $.ajax({
+        url: '/verify',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ email: email, code: code }),
+        success: function(response) {
+          if (response.message) {
+            $('#verificationModal').modal('hide');
+            $(registrationForm).unbind('submit').submit();
+          } else {
+            $(errorContainer).text("Invalid verification code.").show();
+          }
+        },
+        error: function() {
+          $(errorContainer).text("Error occurred while verifying.").show();
+        }
+      });
+    });
+
+    registrationForm.addEventListener('input', () => {
+      // Enable or disable Create Account button based on form validation
+      createAccountBtn.disabled = !emailInput.validity.valid || !termsCheckbox.checked;
+    });
+
+  });
+</script>
+
+
+
+
+
+
+
+
+  </section><!-- End Hero -->
+
+
+    <!-- ======= Clients Section ======= -->
+    <section id="clients" class="clients">
+
+      <div class="container" data-aos="fade-up">
+
+        <header class="section-header">
+          <h4>Trusted by 1000K plus customers</h4>
+        </header>
+
+        <div class="clients-slider swiper">
+          <div class="swiper-wrapper align-items-center">
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-1.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-2.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-3.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-4.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-5.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-6.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-7.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/assets/img/clients/client-8.png" class="img-fluid" alt=""></div>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+
+    </section><!-- End Clients Section -->
+
+  <!-- Feature Tabs -->
+  <section class="bg-theme">
+  <div class="container aos-init aos-animate ">
+      <div class="row topheadersecton" data-aos="fade-up">
+          <div class="col-sm-5">
+              <h3>About <br/>our <br/>company</h3>
+          </div>
+          <div class="col-sm-7"  data-aos="fade-up">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+              <p>  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                
+              <p> Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo</p>
+          </div>
+      </div>
+
+      <div class="row about-image mt-4" data-aos="fade-up">
+        <img src="/static/assets/img/about-image.png" class="img-fluid" alt="">
+       </div>
+</div>
+</section>
+  <!-- End Feature Tabs -->
+
+ <!-- ======= Services Section ======= -->
+ <section id="services" class="services">
+
+  <div class="container" data-aos="fade-up">
+
+    <header class="section-header">
+      <p>Veritatis et dolores facere numquam et praesentium</p>
+      <h2>Our 12 years of together have <br/> given us much to be proud of</h2>
+    </header>
+
+    <div class="row gy-4 text-left">
+
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-box blue">
+          <i class="ri-discuss-line icon"></i>
+          <h3>Nesciunt Mete</h3>
+          <p>Provident nihil minus qui consequatur non omnis maiores. Eos accusantium minus dolores iure perferendis tempore et consequatur.</p>
+          <a href="#" class="read-more"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="service-box orange">
+          <i class="ri-discuss-line icon"></i>
+          <h3>Eosle Commodi</h3>
+          <p>Ut autem aut autem non a. Sint sint sit facilis nam iusto sint. Libero corrupti neque eum hic non ut nesciunt dolorem.</p>
+          <a href="#" class="read-more"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+        <div class="service-box green">
+          <i class="ri-discuss-line icon"></i>
+          <h3>Ledo Markt</h3>
+          <p>Ut excepturi voluptatem nisi sed. Quidem fuga consequatur. Minus ea aut. Vel qui id voluptas adipisci eos earum corrupti.</p>
+          <a href="#" class="read-more"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
+        <div class="service-box red">
+          <i class="ri-discuss-line icon"></i>
+          <h3>Asperiores Commodi</h3>
+          <p>Non et temporibus minus omnis sed dolor esse consequatur. Cupiditate sed error ea fuga sit provident adipisci neque.</p>
+          <a href="#" class="read-more"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section><!-- End Services Section -->
+
+<!-- ======= Pricing Section ======= -->
+<section id="pricing" class="pricing">
+
+  <div class="container" data-aos="fade-up">
+
+    <header class="section-header">
+      <h2>Pricing</h2>
+      <p>Check our Pricing</p>
+    </header>
+
+    <div class="row gy-4" data-aos="fade-left">
+
+      <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+        <div class="box">
+          <h3 style="color: #07d5c0;">Free Plan</h3>
+          <div class="price"><sup>$</sup>0<span> / mo</span></div>
+          <img src="/static/assets/img/pricing-free.png" class="img-fluid" alt="">
+          <ul>
+            <li>Aida dere</li>
+            <li>Nec feugiat nisl</li>
+            <li>Nulla at volutpat dola</li>
+            <li class="na">Pharetra massa</li>
+            <li class="na">Massa ultricies mi</li>
+          </ul>
+          <a href="#" class="btn-buy">Buy Now</a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="200">
+        <div class="box">
+          <span class="featured">Featured</span>
+          <h3 style="color: #65c600;">Starter Plan</h3>
+          <div class="price"><sup>$</sup>19<span> / mo</span></div>
+          <img src="/static/assets/img/pricing-starter.png" class="img-fluid" alt="">
+          <ul>
+            <li>Aida dere</li>
+            <li>Nec feugiat nisl</li>
+            <li>Nulla at volutpat dola</li>
+            <li>Pharetra massa</li>
+            <li class="na">Massa ultricies mi</li>
+          </ul>
+          <a href="#" class="btn-buy">Buy Now</a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="300">
+        <div class="box">
+          <h3 style="color: #ff901c;">Business Plan</h3>
+          <div class="price"><sup>$</sup>29<span> / mo</span></div>
+          <img src="/static/assets/img/pricing-business.png" class="img-fluid" alt="">
+          <ul>
+            <li>Aida dere</li>
+            <li>Nec feugiat nisl</li>
+            <li>Nulla at volutpat dola</li>
+            <li>Pharetra massa</li>
+            <li>Massa ultricies mi</li>
+          </ul>
+          <a href="#" class="btn-buy">Buy Now</a>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="400">
+        <div class="box">
+          <h3 style="color: #ff0071;">Ultimate Plan</h3>
+          <div class="price"><sup>$</sup>49<span> / mo</span></div>
+          <img src="/static/assets/img/pricing-ultimate.png" class="img-fluid" alt="">
+          <ul>
+            <li>Aida dere</li>
+            <li>Nec feugiat nisl</li>
+            <li>Nulla at volutpat dola</li>
+            <li>Pharetra massa</li>
+            <li>Massa ultricies mi</li>
+          </ul>
+          <a href="#" class="btn-buy">Buy Now</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section><!-- End Pricing Section -->
+
+
+    <!-- ======= F.A.Q Section ======= -->
+    <section id="faq" class="faq" style="background-color: #F6F5F8;">
+
+      <div class="container" data-aos="fade-up">
+
+        <header class="section-header">
+          <h2>Frequently asked questions</h2>
+        </header>
+
+        <div class="row">
+          <div class="col-lg-6">
+            <!-- F.A.Q List 1-->
+            <div class="accordion accordion-flush" id="faqlist1">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-1">
+                    Non consectetur a erat nam at lectus urna duis?
+                  </button>
+                </h2>
+                <div id="faq-content-1" class="accordion-collapse collapse" data-bs-parent="#faqlist1">
+                  <div class="accordion-body">
+                    Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-2">
+                    Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque?
+                  </button>
+                </h2>
+                <div id="faq-content-2" class="accordion-collapse collapse" data-bs-parent="#faqlist1">
+                  <div class="accordion-body">
+                    Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-3">
+                    Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi?
+                  </button>
+                </h2>
+                <div id="faq-content-3" class="accordion-collapse collapse" data-bs-parent="#faqlist1">
+                  <div class="accordion-body">
+                    Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+
+            <!-- F.A.Q List 2-->
+            <div class="accordion accordion-flush" id="faqlist2">
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2-content-1">
+                    Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?
+                  </button>
+                </h2>
+                <div id="faq2-content-1" class="accordion-collapse collapse" data-bs-parent="#faqlist2">
+                  <div class="accordion-body">
+                    Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2-content-2">
+                    Tempus quam pellentesque nec nam aliquam sem et tortor consequat?
+                  </button>
+                </h2>
+                <div id="faq2-content-2" class="accordion-collapse collapse" data-bs-parent="#faqlist2">
+                  <div class="accordion-body">
+                    Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2-content-3">
+                    Varius vel pharetra vel turpis nunc eget lorem dolor?
+                  </button>
+                </h2>
+                <div id="faq2-content-3" class="accordion-collapse collapse" data-bs-parent="#faqlist2">
+                  <div class="accordion-body">
+                    Laoreet sit amet cursus sit amet dictum sit amet justo. Mauris vitae ultricies leo integer malesuada nunc vel. Tincidunt eget nullam non nisi est sit amet. Turpis nunc eget lorem dolor sed. Ut venenatis tellus in metus vulputate eu scelerisque. Pellentesque diam volutpat commodo sed egestas egestas fringilla phasellus faucibus. Nibh tellus molestie nunc non blandit massa enim nec.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- End F.A.Q Section -->
+
+
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-5 col-md-12 footer-info">
+            <a href="index.html" class="logo d-flex align-items-center">
+              <img src="/static/assets/img/logo.png" alt="">
+            </a>
+            <p>Cras fermentum odio eu feugiat lide par naso tierra. Justo eget nada terra videa magna derita valies darta donna mare fermentum iaculis eu non diam phasellus.</p>
+            <div class="social-links mt-3">
+              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Services</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Design</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Development</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Product Management</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Marketing</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Graphic Design</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+            <h4>Contact Us</h4>
+            <p>
+              A108 Adam Street <br>
+              New York, NY 535022<br>
+              United States <br><br>
+              <strong>Phone:</strong> +1 5589 55488 55<br>
+              <strong>Email:</strong> info@example.com<br>
+            </p>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Debug Force</span></strong>. All Rights Reserved
+      </div>
+
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="/static/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="/static/assets/vendor/aos/aos.js"></script>
+  <script src="/static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="/static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="/static/assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="/static/assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="/static/assets/js/main.js"></script>
+
+</body>
+
+</html>

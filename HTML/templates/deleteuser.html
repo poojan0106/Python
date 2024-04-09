@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete User</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  <!-- Include jQuery -->
+</head>
+<body>
+
+<h2>Delete User</h2>
+
+<form id="delete-user-form" method="post" action="/delete_user">
+    
+    <!-- Error message display -->
+    <p id="error-message" style="color: red;"></p>
+    
+    Email: <input type="text" name="email" required><br><br>
+    <input type="submit" value="Delete User">
+</form>
+
+<script>
+    $(document).ready(function(){
+        $('#delete-user-form').submit(function(event){
+            event.preventDefault();
+            
+            $.ajax({
+                url: '/delete_user',  // Corrected URL
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response){
+                    if(response.error){
+                        $('#error-message').text(response.error);
+                    } else if(response.success){
+                        alert(response.success);
+                        window.location.reload();  // Reload the page after successful user deletion
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
