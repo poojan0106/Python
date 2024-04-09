@@ -1,16 +1,31 @@
 import secrets
-from flask import Flask, redirect, render_template, request, jsonify, session, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash
 import os
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import random
 import string
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.urandom(24)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# User model example
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+# User loader function
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -24,7 +39,8 @@ def init_db():
         email TEXT UNIQUE NOT NULL,
         phone TEXT NOT NULL,
         password TEXT NOT NULL,
-        reset_token TEXT
+        reset_token TEXT,
+        reset_token_timestamp TEXT
     );
     ''')
     
@@ -43,6 +59,97 @@ def delete_user(email):
     conn.close()
 
 @app.route('/delete_user', methods=['GET', 'POST'])
+@login_required
+def delete_user_route():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        
+        if not email:
+            return render_template('deleteuser.html', error='Email is required')
+        
+        try:
+            delete_user(email)
+            return jsonify(success=f'User with email {email} deleted successfully')
+        except Exception as e:
+            return render_template('deleteuser.html', error=str(e))
+
+    return render_template('deleteuser.html')
+
+def insert_user(first_name, last_name, email, phone, password):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("INSERT INTO users (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+                (first_name, last_name, email, phone, generate_password_hash(password)))
+    conn.commit()
+    conn.close()
+
+def get_user(email):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email=?", (email,))
+    user
+import secrets
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash
+import os
+import sqlite3
+import smtplib
+from email.mime.text import MIMEText
+import random
+import string
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__, static_folder='static')
+app.secret_key = os.urandom(24)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# User model example
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+# User loader function
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+def init_db():
+    conn = sqlite3.connect('database.db')
+    print("Opened database successfully")
+
+    conn.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        phone TEXT NOT NULL,
+        password TEXT NOT NULL,
+        reset_token TEXT,
+        reset_token_timestamp TEXT
+    );
+    ''')
+    
+    print("Table updated successfully")
+    conn.close()
+    
+init_db()
+
+def delete_user(email):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    
+    cur.execute("DELETE FROM users WHERE email=?", (email,))
+    
+    conn.commit()
+    conn.close()
+
+@app.route('/delete_user', methods=['GET', 'POST'])
+@login_required
 def delete_user_route():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -82,35 +189,31 @@ def get_all_users():
     conn.close()
     return users
 
-@app.route('/users')
-def users():
-    users = get_all_users()
-    return render_template('user.html', users=users)
-
 def update_reset_token(email, token):
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
-    cur.execute("UPDATE users SET reset_token=? WHERE email=?", (token, email))
+    cur.execute("UPDATE users SET reset_token=?, reset_token_timestamp=? WHERE email=?", (token, datetime.now(), email))
     conn.commit()
     conn.close()
 
 def send_reset_email(email, token):
-    msg = MIMEText(f"Click the following link to reset your password: http://localhost:5000/reset-password/{token}")
-    msg['Subject'] = 'Password Reset'
-    msg['From'] = 'poojangabani12@gmail.com'  # Update with your email address
-    msg['To'] = email
+    if email:
+        msg = MIMEText(f"Click the following link to reset your password: http://localhost:5000/reset-password/{token}")
+        msg['Subject'] = 'Password Reset'
+        msg['From'] = 'poojangabani12@gmail.com'
+        msg['To'] = email
 
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-
-        server.login('poojangabani12@gmail.com', 'ifiicmbdwvpfmdso')  # Update with your email and password
-        server.sendmail('poojangabani12@gmail.com', email, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login('poojangabani12@gmail.com', 'ifiicmbdwvpfmdso')
+            server.sendmail('poojangabani12@gmail.com', email, msg.as_string())
+            server.quit()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        print("Email not found")
+        
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -128,11 +231,9 @@ def validate_email():
     return render_template('index.html')
 
 @app.route('/blog')
+@login_required
 def blog_page():
-    if 'email' in session:
-        return render_template('blog.html')
-    else:
-        return redirect(url_for('index'))
+    return render_template('blog.html')
         
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -154,7 +255,7 @@ def register():
             return jsonify(error='Passwords do not match!')
 
         verification_token = ''.join(random.choices(string.digits, k=6))
-        send_verification_email(email, verification_token)  # Moved this line here
+        send_verification_email(email, verification_token)
         session['verification_token'] = verification_token
         session['user_data'] = {
             'first_name': first_name,
@@ -216,6 +317,8 @@ def login():
         user = get_user(email)
         if user and check_password_hash(user[5], password):  # assuming password is the 6th column in the table
             session['email'] = email
+            user_obj = User(user[0])
+            login_user(user_obj)
             return jsonify(success='match credentials')
         else:
             return jsonify(error='Invalid credentials')
@@ -249,6 +352,10 @@ def reset_password(token):
         
         user = [x for x in users if x[6] == token]  # assuming reset_token is the 7th column
         if user:
+            token_timestamp = datetime.strptime(user[0][7], '%Y-%m-%d %H:%M:%S.%f')
+            if datetime.now() - token_timestamp > timedelta(minutes=5):
+                return jsonify(error='Token has expired. Please try again and generate new reset password link.')
+            
             update_user_password(user[0][3], password)
             return jsonify(success='Password reset successfully.')
         else:
@@ -263,13 +370,19 @@ def update_user_password(email, new_password):
     cur.execute("UPDATE users SET password=? WHERE email=?", (hashed_password, email))
     conn.commit()
     conn.close()
+    
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    session.pop('email', None)
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('login'))
 
 @app.route('/innerPage')
+@login_required
 def innerPage():
-    if 'email' in session:
-        return render_template('index.html')
-    else:
-        return redirect(url_for('index'))
+    return render_template('inner-page.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
