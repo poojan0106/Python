@@ -142,12 +142,11 @@ def validate_email():
         else:
             return jsonify(error="Invalid email")
 
-    return render_template('index.html')
+    return render_template('file-upload.html')
 
-@app.route('/blog')
-@login_required
-def blog_page():
-    return render_template('blog.html')
+@app.route('/file-uploder')
+def file_uploder():
+    return render_template('file-upload.html')
         
 @app.route('/register', methods=['GET', 'POST'])
 def register():
