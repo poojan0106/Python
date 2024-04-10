@@ -133,7 +133,7 @@
       </div>
     </div>
     <!-- Verification Modal -->
-    <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true" data-bs-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -211,7 +211,20 @@
                     } else {
                         $('#verificationModal').modal('show');
                         emailDisplay.textContent = emailInput.value;
-                        checkButtonStatus(); // Call the function to set the button status
+                      //  checkButtonStatus(); // Call the function to set the button status
+                        resendBtn.disabled = true; // Disable button on click
+                        var countdown = 60;
+
+                        interval = setInterval(function () {
+                            countdown--;
+                            resendBtn.textContent = "Resend in " + countdown + "s";
+
+                            if (countdown <= 0) {
+                                clearInterval(interval);
+                                resendBtn.textContent = "Resend Verification Code";
+                                resendBtn.disabled = false;
+                            }
+                        }, 1000);
                     }
                 },
                 error: function () {

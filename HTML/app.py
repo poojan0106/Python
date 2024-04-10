@@ -59,7 +59,6 @@ def delete_user(email):
     conn.close()
 
 @app.route('/delete_user', methods=['GET', 'POST'])
-@login_required
 def delete_user_route():
     if request.method == 'POST':
         email = request.form.get('email')
