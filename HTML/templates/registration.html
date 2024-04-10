@@ -135,24 +135,28 @@
     <!-- Verification Modal -->
     <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title varificationHeader" id="verificationModalLabel">Verification</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                  <p><span class="small-text">Verification code sent to: </span><span id="emailDisplay"></span></p>
-                  <div id="errorContainer" style="color: red;"></div>
-                  <div class="mb-3">
-                      <label for="verificationCode" class="form-label">Verification Code</label>
-                      <input type="text" class="form-control" id="verificationCode" required>
-                  </div>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary" id="verifyCodeBtn">Verify</button>
-              </div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title varificationHeader" id="verificationModalLabel">Verification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+          <div class="modal-body">
+            <p><span class="small-text">Verification code sent to: </span><span id="emailDisplay"></span></p>
+            <div id="errorContainer" style="color: red;"></div>
+            <div id="successContainer" style="color: green;"></div>
+            <div class="mb-3">
+                <label for="verificationCode" class="form-label">Verification Code</label>
+                <input type="text" class="form-control" id="verificationCode" required>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary btn-sm" id="resend-btn">Resend varification code</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="verifyCodeBtn">Verify</button>
+          </div>
+        </div>
       </div>
     </div>
     <!-- Success Modal -->
@@ -174,95 +178,181 @@
       </div>
     </div>
   </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const createAccountBtn = document.getElementById('createAccountBtn');
-      const registrationForm = document.getElementById('registration-form');
-      const emailInput = document.querySelector('input[name="email"]');
-      const verificationModalLabel = document.getElementById('verificationModalLabel');
-      const emailDisplay = document.getElementById('emailDisplay');
-      const verificationCodeInput = document.getElementById('verificationCode');
-      const termsCheckbox = document.getElementById('flexCheckDefault');
-      const errorContainer = document.getElementById('errorContainer');
+        const createAccountBtn = document.getElementById('createAccountBtn');
+        const registrationForm = document.getElementById('registration-form');
+        const emailInput = document.querySelector('input[name="email"]');
+        const verificationModalLabel = document.getElementById('verificationModalLabel');
+        const emailDisplay = document.getElementById('emailDisplay');
+        const verificationCodeInput = document.getElementById('verificationCode');
+        const termsCheckbox = document.getElementById('flexCheckDefault');
+        const errorContainer = document.getElementById('errorContainer');
+        const successContainer = document.getElementById('successContainer');
+        const resendBtn = document.getElementById('resend-btn');
+        let interval; // To hold the interval for countdown
 
-      // Disable the Create Account button initially
-      createAccountBtn.disabled = true;
-
-      registrationForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        $('#error-message').text('').hide();
-        // Disable the submit button to prevent multiple submissions
+        // Disable the Create Account button initially
         createAccountBtn.disabled = true;
-      
-        $.ajax({
-          url: '/register',
-          method: 'POST',
-          data: $(registrationForm).serialize(),
-          success: function(response) {  
-            if(response.error){
-              $('#error-message').text(response.error).show();
-            }else{
-              $('#verificationModal').modal('show');
-              emailDisplay.textContent = emailInput.value;
-            }
-          },
-          error: function() {
-            $(errorContainer).text("Error occurred while registering.").show();
-          },
-          complete: function() {
-            // Enable the submit button after the AJAX call is completed
-            createAccountBtn.disabled = false;
-          }
-        });
-      });
-      
-      $('.btn-secondary[data-bs-dismiss="modal"]').click(function(){
-        $(errorContainer).text(''); // Clear error message
-        document.getElementById("verificationCode").value = "";
-      });
 
-      $('.btn-close[data-bs-dismiss="modal"]').click(function(){
-        $(errorContainer).text(''); // Clear error message
-        document.getElementById("verificationCode").value = "";
-      });
+        registrationForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            $('#error-message').text('').hide();
+            // Disable the submit button to prevent multiple submissions
+            createAccountBtn.disabled = true;
 
-      $('#verifyCodeBtn').click(function() {
-        let email = emailDisplay.textContent;
-        let code = verificationCodeInput.value;
-        $(errorContainer).text('').hide();
-        $.ajax({
-            url: '/verify',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ email: email, code: code }),
-            success: function(response) {
-                if (response.success) {
-                  $('#verificationModal').modal('hide');  // Close the modal  
-                  const successModal = new bootstrap.Modal(document.getElementById('success_tic'));
-                  successModal.show();
-                  setTimeout(() => {
-                    successModal.hide();
-                    window.location.href = '/login';
-                  }, 3000);
-                } else {
-                    $(errorContainer).text(response.error).show();
+            $.ajax({
+                url: '/register',
+                method: 'POST',
+                data: $(registrationForm).serialize(),
+                success: function (response) {
+                    if (response.error) {
+                        $('#error-message').text(response.error).show();
+                    } else {
+                        $('#verificationModal').modal('show');
+                        emailDisplay.textContent = emailInput.value;
+                        checkButtonStatus(); // Call the function to set the button status
+                    }
+                },
+                error: function () {
+                    $(errorContainer).text("Error occurred while registering.").show();
+                },
+                complete: function () {
+                    // Enable the submit button after the AJAX call is completed
+                    createAccountBtn.disabled = false;
                 }
-            },
-            error: function() {
-                $(errorContainer).text("Error occurred while verifying.").show();
-            }
+            });
         });
-    });
-    
 
-      registrationForm.addEventListener('input', () => {
-        // Enable or disable Create Account button based on form validation
-        createAccountBtn.disabled = !emailInput.validity.valid || !termsCheckbox.checked;
-      });
+        $('.btn-secondary[data-bs-dismiss="modal"]').click(function () {
+            $(errorContainer).text(''); // Clear error message
+            $(successContainer).text(''); // Clear success message
+            verificationCodeInput.value = "";
+            clearInterval(interval); // Clear the countdown interval
+            resendBtn.textContent = "Resend Verification Code"; // Reset button text
+            resendBtn.disabled = false; // Reset button state
+        });
+
+        $('.btn-close[data-bs-dismiss="modal"]').click(function () {
+            $(errorContainer).text(''); // Clear error message
+            $(successContainer).text(''); // Clear success message
+            verificationCodeInput.value = "";
+            clearInterval(interval); // Clear the countdown interval
+            resendBtn.textContent = "Resend Verification Code"; // Reset button text
+            resendBtn.disabled = false; // Reset button state
+        });
+
+        $('#verifyCodeBtn').click(function () {
+            let email = emailDisplay.textContent;
+            let code = verificationCodeInput.value;
+            $(errorContainer).text('').hide();
+            $(successContainer).text('').hide();
+            $.ajax({
+                url: '/verify',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    email: email,
+                    code: code
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        $('#verificationModal').modal('hide'); // Close the modal  
+                        const successModal = new bootstrap.Modal(document.getElementById('success_tic'));
+                        successModal.show();
+                        setTimeout(() => {
+                            successModal.hide();
+                            window.location.href = '/login';
+                        }, 3000);
+                    } else {
+                        $(errorContainer).text(response.error).show();
+                    }
+                },
+                error: function () {
+                    $(errorContainer).text("Error occurred while verifying.").show();
+                }
+            });
+        });
+
+        registrationForm.addEventListener('input', () => {
+            // Enable or disable Create Account button based on form validation
+            createAccountBtn.disabled = !emailInput.validity.valid || !termsCheckbox.checked;
+        });
+
+        function checkButtonStatus() {
+            var storedTimestamp = new Date('{{ session.get("verification_token_timestamp") }}'); // Get stored timestamp from Flask session
+            var currentTime = new Date();
+            var diff = (currentTime - storedTimestamp) / (1000 * 60); // Calculate time difference in minutes
+
+            if (diff < 1) {
+                resendBtn.disabled = true;
+                var countdown = 60 - Math.round(diff * 60);
+                resendBtn.textContent = "Resend in " + countdown + "s";
+
+                interval = setInterval(function () {
+                    countdown--;
+                    resendBtn.textContent = "Resend in " + countdown + "s";
+
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        resendBtn.textContent = "Resend Verification Code";
+                        resendBtn.disabled = false;
+                    }
+                }, 1000);
+            } else {
+                resendBtn.disabled = false;
+            }
+        }
+
+        $("#resend-btn").click(function () {
+            let email = emailInput.value;
+            $(errorContainer).text('').hide();
+            $(successContainer).text('').hide();
+
+            resendBtn.disabled = true; // Disable button on click
+            var countdown = 60;
+
+            interval = setInterval(function () {
+                countdown--;
+                resendBtn.textContent = "Resend in " + countdown + "s";
+
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    resendBtn.textContent = "Resend Verification Code";
+                    resendBtn.disabled = false;
+                }
+            }, 1000);
+
+            $.ajax({
+                url: '/resend-verification',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    email: email
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        $(successContainer).text(response.message).show();
+                    } else {
+                        $(errorContainer).text(response.error).show();
+                    }
+                },
+                error: function (error) {
+                    $(errorContainer).text("An error occurred while resending the verification code.").show();
+                }
+            });
+        });
 
     });
-  </script>
+</script>
+
+
+
+
+
+
+
+
 </section>
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">

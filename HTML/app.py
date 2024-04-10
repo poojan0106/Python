@@ -99,6 +99,11 @@ def get_all_users():
     conn.close()
     return users
 
+@app.route('/users')
+def users():
+    users = get_all_users()
+    return render_template('user.html', users=users)
+
 def update_reset_token(email, token):
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
@@ -212,6 +217,22 @@ def verify():
         return jsonify(success=True, message='Verification successful')
     else:
         return jsonify(success=False, error='Invalid verification code.')
+
+
+@app.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.json
+    email = data.get('email')
+    
+    # Generate a new verification token
+    new_verification_token = ''.join(random.choices(string.digits, k=6))
+    send_verification_email(email, new_verification_token)
+    
+    # Store new verification token and timestamp in session
+    session['verification_token'] = new_verification_token
+    session['verification_token_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    return jsonify(success=True, message='Verification code has been resent.')
 
 def send_verification_email(email, verification_token):
     msg = MIMEText(f'Your verification code is: {verification_token}')
