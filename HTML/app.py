@@ -87,96 +87,6 @@ def get_user(email):
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE email=?", (email,))
-    user
-import secrets
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash
-import os
-import sqlite3
-import smtplib
-from email.mime.text import MIMEText
-import random
-import string
-from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
-
-app = Flask(__name__, static_folder='static')
-app.secret_key = os.urandom(24)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-# User model example
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-
-# User loader function
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id)
-
-def init_db():
-    conn = sqlite3.connect('database.db')
-    print("Opened database successfully")
-
-    conn.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        phone TEXT NOT NULL,
-        password TEXT NOT NULL,
-        reset_token TEXT,
-        reset_token_timestamp TEXT
-    );
-    ''')
-    
-    print("Table updated successfully")
-    conn.close()
-    
-init_db()
-
-def delete_user(email):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    
-    cur.execute("DELETE FROM users WHERE email=?", (email,))
-    
-    conn.commit()
-    conn.close()
-
-@app.route('/delete_user', methods=['GET', 'POST'])
-@login_required
-def delete_user_route():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        
-        if not email:
-            return render_template('deleteuser.html', error='Email is required')
-        
-        try:
-            delete_user(email)
-            return jsonify(success=f'User with email {email} deleted successfully')
-        except Exception as e:
-            return render_template('deleteuser.html', error=str(e))
-
-    return render_template('deleteuser.html')
-
-def insert_user(first_name, last_name, email, phone, password):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    cur.execute("INSERT INTO users (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
-                (first_name, last_name, email, phone, generate_password_hash(password)))
-    conn.commit()
-    conn.close()
-
-def get_user(email):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email=?", (email,))
     user = cur.fetchone()
     conn.close()
     return user
@@ -256,7 +166,11 @@ def register():
 
         verification_token = ''.join(random.choices(string.digits, k=6))
         send_verification_email(email, verification_token)
+        
+        # Store verification token and timestamp in session
         session['verification_token'] = verification_token
+        session['verification_token_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         session['user_data'] = {
             'first_name': first_name,
             'last_name': last_name,
@@ -276,16 +190,23 @@ def verify():
     code = data.get('code')
 
     stored_verification_token = session.get('verification_token')
+    stored_verification_token_timestamp = session.get('verification_token_timestamp')
     user_data = session.get('user_data')
 
     if not user_data:
         return jsonify(success=False, error='User data not found. Please try registering again.')
 
     if stored_verification_token == code:
+        # Check if the verification token has expired (e.g., 5 minutes)
+        token_timestamp = datetime.strptime(stored_verification_token_timestamp, '%Y-%m-%d %H:%M:%S')
+        if datetime.now() - token_timestamp > timedelta(minutes=1):
+            return jsonify(success=False, error='Verification code has expired. Please try again.')
+
         insert_user(user_data['first_name'], user_data['last_name'], user_data['email'], user_data['phone'], user_data['password'])
 
         # Clear session data
         session.pop('verification_token', None)
+        session.pop('verification_token_timestamp', None)
         session.pop('user_data', None)
 
         return jsonify(success=True, message='Verification successful')
