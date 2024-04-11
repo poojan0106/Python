@@ -1,17 +1,22 @@
 import secrets
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash
+from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash, current_app
 import os
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 import random
 import string
+from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.urandom(24)
+
+# Configuration
+app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
+app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Allowed file extensions
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -26,6 +31,9 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -47,6 +55,8 @@ def init_db():
     print("Table updated successfully")
     conn.close()
     
+logged_in_users = set()
+
 init_db()
 
 def delete_user(email):
@@ -258,6 +268,11 @@ def login():
         if user and check_password_hash(user[5], password):  # assuming password is the 6th column in the table
             session['email'] = email
             user_obj = User(user[0])
+            session['username'] = email
+            logged_in_users.add(email)
+            resp = jsonify({"success": "Logged in"})
+            resp.set_cookie('username', email)
+            
             login_user(user_obj)
             return jsonify(success='match credentials')
         else:
@@ -314,8 +329,12 @@ def update_user_password(email, new_password):
 @app.route('/logout')
 @login_required
 def logout():
+    
     logout_user()
-    session.pop('email', None)
+    if 'username' in session:
+        logged_in_users.remove(session['username'])
+        session.pop('email', None)
+        session.pop('username', None)
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
 
@@ -323,6 +342,30 @@ def logout():
 @login_required
 def innerPage():
     return render_template('inner-page.html')
+
+
+@app.route('/upload', methods=['GET'])
+def check_login():
+    if 'email' not in session or session['email'] not in logged_in_users:
+        return jsonify({"error": "User not logged in"}), 401
+    return jsonify({"success": "Logged in"}), 200
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    try:
+        file.save(filepath)
+        return jsonify({"success": "File uploaded successfully", "filename": file.filename}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

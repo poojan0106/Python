@@ -79,9 +79,13 @@
         <!-- .navbar -->
         <div class="hraderright">
           <ul id="navbar1" class="navbar list-none">
-            <li><a class="nav-link scrollto" href="/login">Login</a></li>
+            <li><a id="loginButton" class="nav-link scrollto" href="/login">Login</a></li>
             <li>
-              <a class="getstarted scrollto" href="/register">Registration</a>
+              <a  id="registerButton" class="getstarted scrollto" href="/register">Registration</a>
+            </li>
+            <li>
+            <li>
+                <a  id="logoutButton" class="nav-link scrollto" href="/register">Registration</a>
             </li>
           </ul>
         </div>
@@ -140,18 +144,169 @@
                     <h4 class="main-text">Upload your debug file</h4>
                     <h5 class="sub-text">Upload debug file and get report</h5>
                 </div>
-                <div class="drop-area">
+                <div class="drop-area" id="dropArea">
                     <img src="/static/assets/img/upload.png" alt="" class="upload-logo">
-                    <div class="file-text">Select file or drag and drop here</div>
+                    <div class="file-text">Drag and drop file here or</div>
                     <div class="file-size">XML, pdb file size no more than 10MB</div>
-                    <button type="button" class="btn btn-primary btn-sm">Select File</button>
+                    <input type="file" id="fileInput" style="display: none;" />
+                    <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('fileInput').click();">Select File</button>
                 </div>
                 <div class="button-container">
                     <button type="button" class="btn btn-secondary">Cancel</button>
-                    <button type="button" class="btn btn-primary">Upload File</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload File</button>
                 </div>
             </div>
             
+            <!-- Login Popup Modal -->
+            <div id="loginModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <form id="loginForm">
+                        <input type="text" placeholder="Username" name="username" required>
+                        <input type="password" placeholder="Password" name="password" required>
+                        <button type="submit">Login</button>
+                    </form>
+                    <button onclick="continueAsGuest()">Continue as Guest</button>
+                </div>
+            </div>
+            
+            <script>
+                const dropArea = document.getElementById('dropArea');
+
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                dropArea.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    let dt = e.dataTransfer;
+                    let files = dt.files;
+
+                    handleFiles(files);
+                }
+
+                // File input change handler
+                document.getElementById('fileInput').addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
+                });
+
+                function handleFiles(files) {
+                    ([...files]).forEach(uploadFile);
+                }
+
+                function uploadFile() {
+                    const fileInput = document.querySelector('input[type="file"]');
+                    const file = fileInput.files[0];
+                
+                    if (!file) {
+                        console.log('No file selected');
+                        return;
+                    }
+                
+                    const formData = new FormData();
+                    formData.append('file', file);
+                
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            console.log('File uploaded successfully:', data.filename);
+                            alert('File uploaded successfully!');
+                        } else {
+                            console.log('Error uploading file:', data.error);
+                            alert('Error uploading file. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
+                        alert('Error uploading file. Please try again.');
+                    });
+                }
+                function checkLoginStatus() {
+                    fetch('/check_login', { method: 'GET', credentials: 'same-origin' })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.logged_in) {
+                                // User is logged in
+                                showLogoutButton();
+                            } else {
+                                // User is not logged in
+                                showLoginRegisterButtons();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking login status:', error);
+                        });
+                }
+                
+                function showLogoutButton() {
+                    // Code to show the logout button and hide login/register buttons
+                    document.getElementById('logoutButton').style.display = 'block';
+                    document.getElementById('loginButton').style.display = 'none';
+                    document.getElementById('registerButton').style.display = 'none';
+                }
+                
+                function showLoginRegisterButtons() {
+                    // Code to show the login/register buttons and hide logout button
+                    document.getElementById('logoutButton').style.display = 'none';
+                    document.getElementById('loginButton').style.display = 'block';
+                    document.getElementById('registerButton').style.display = 'block';
+                }
+                
+                // Call checkLoginStatus when the page loads
+                window.addEventListener('load', checkLoginStatus);
+                
+        
+                document.querySelector('.close-btn').addEventListener('click', function () {
+                    document.getElementById('loginModal').style.display = 'none';
+                });
+        
+                document.getElementById('loginForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    fetch('/login', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('loginModal').style.display = 'none';
+                        } else {
+                            alert(data.error);
+                        }
+                    });
+                });
+        
+                function continueAsGuest() {
+                    document.getElementById('loginModal').style.display = 'none';
+                    alert('Continuing as guest...');
+                }
+            </script>
+            
+            
+
         </div>
     </section>
     <!-- ======= Footer ======= -->
