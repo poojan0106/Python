@@ -1,95 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-
     <title>Debug Force</title>
     <meta content="" name="description" />
     <meta content="" name="keywords" />
 
     <!-- Favicons -->
     <link href="/static/assets/img/favicon.png" rel="icon" />
-    <link
-      href="/static/assets/img/apple-touch-icon.png"
-      rel="apple-touch-icon"
-    />
+    <link href="/static/assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
 
     <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet" />
 
     <!-- Vendor CSS Files -->
     <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet" />
-    <link
-      href="/static/assets/vendor/bootstrap/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-    <link
-      href="/static/assets/vendor/glightbox/css/glightbox.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="/static/assets/vendor/remixicon/remixicon.css"
-      rel="stylesheet"
-    />
-    <link
-      href="/static/assets/vendor/swiper/swiper-bundle.min.css"
-      rel="stylesheet"
-    />
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
+    <link href="/static/assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Template Main CSS File -->
     <link href="/static/assets/css/style.css" rel="stylesheet" />
+</head>
 
-    <!-- =======================================================
-  * Template Name: FlexStart
-  * Updated: Mar 10 2024 with Bootstrap v5.3.3
-  * Template URL: https://bootstrapmade.com/flexstart-bootstrap-startup-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-  </head>
-
-  <body>
+<body>
     <!-- ======= Header ======= -->
     <header id="header" class="header fixed-top">
-      <div
-        class="container-fluid container-xl d-flex align-items-center justify-content-between"
-      >
-        <a href="index.html" class="logo d-flex align-items-center">
-          <img src="/static/assets/img/logo.png" alt="" />
-        </a>
-
-        <nav id="navbar" class="navbar">
-          <ul>
-            <li><a class="nav-link scrollto active" href="#;">Product</a></li>
-            <li><a class="nav-link scrollto" href="#;">Company</a></li>
-            <li><a class="nav-link scrollto" href="#;">Brands</a></li>
-            <li><a class="nav-link scrollto" href="#;">Contact</a></li>
-            <li><a class="nav-link scrollto" href="#;">Team</a></li>
-          </ul>
-          <i class="bi bi-list mobile-nav-toggle"></i>
-        </nav>
-        <!-- .navbar -->
-        <div class="hraderright">
-          <ul id="navbar1" class="navbar list-none">
-            <li><a id="loginButton" class="nav-link scrollto" href="/login">Login</a></li>
-            <li>
-              <a  id="registerButton" class="getstarted scrollto" href="/register">Registration</a>
-            </li>
-            <li>
-            <li>
-                <a  id="logoutButton" class="nav-link scrollto" href="/register">Registration</a>
-            </li>
-          </ul>
+        <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="/static/assets/img/logo.png" alt="" />
+            </a>
+            <nav id="navbar" class="navbar">
+                <ul>
+                    <li><a class="nav-link scrollto active" href="#;">Product</a></li>
+                    <li><a class="nav-link scrollto" href="#;">Company</a></li>
+                    <li><a class="nav-link scrollto" href="#;">Brands</a></li>
+                    <li><a class="nav-link scrollto" href="#;">Contact</a></li>
+                    <li><a class="nav-link scrollto" href="#;">Team</a></li>
+                </ul>
+                <i class="bi bi-list mobile-nav-toggle"></i>
+            </nav>
+            <div class="hraderright">
+                <ul id="navbar1" class="navbar list-none">
+                    <li><a id="loginButton" style="display:none;" class="nav-link scrollto" href="/login">Login</a></li>
+                    <li><a id="registerButton" style="display:none;" class="getstarted scrollto" href="/register">Registration</a></li>
+                    <li><a id="logoutButton" style="display:none;" class="nav-link scrollto" href="/logout">Logout</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </header>
     <!-- End Header -->
 
@@ -97,46 +59,20 @@
     <section id="hero" class="hero d-flex align-items-center">
         <div class="container">
             <div class="row flex-column justify-content-center">
-            <div class="col-lg-12 d-flex flex-column gy-4 justify-content-center">
-                <h1 data-aos="fade-up">
-                Next-Generation <br />
-                Debug Report Generating Cloud
-                </h1>
-                <p data-aos="fade-up" data-aos-delay="400">
-                Deliver unparalleled digital experience with our next-gen
-                AI-powered testing cloud platform.<br />
-                Ensure exceptional user experience across all devices and
-                browsers.
-                </p>
-                <div
-                class="heroform col-sm-4 my-auto mx-auto"
-                data-aos="fade-up"
-                data-aos-delay="600"
-                >
-                <div id="error-message" style="color: red"></div>
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
-                    $(document).ready(function () {
-                    $("#validate-email").submit(function (event) {
-                        event.preventDefault();
-
-                        $.ajax({
-                        url: "/validate", // Corrected URL
-                        method: "POST",
-                        data: $(this).serialize(),
-                        success: function (response) {
-                            if (response.error) {
-                            $("#error-message").text(response.error);
-                            } else if (response.success) {
-                            window.location.href = "/file-uploder"; // Redirect to login after successful password reset
-                            }
-                        },
-                        });
-                    });
-                    });
-                </script>
+                <div class="col-lg-12 d-flex flex-column gy-4 justify-content-center">
+                    <h1 data-aos="fade-up">
+                        Next-Generation <br />
+                        Debug Report Generating Cloud
+                    </h1>
+                    <p data-aos="fade-up" data-aos-delay="400">
+                        Deliver unparalleled digital experience with our next-gen
+                        AI-powered testing cloud platform.<br />
+                        Ensure exceptional user experience across all devices and
+                        browsers.
+                    </p>
+                    <div class="heroform col-sm-4 my-auto mx-auto" data-aos="fade-up" data-aos-delay="600">
+                    </div>
                 </div>
-            </div>
             </div>
 
             <div class="upload-container">
@@ -144,272 +80,125 @@
                     <h4 class="main-text">Upload your debug file</h4>
                     <h5 class="sub-text">Upload debug file and get report</h5>
                 </div>
-                <div class="drop-area" id="dropArea">
+                <div class="drop-area" id="dropArea" ondrop="handleDrop(event)" ondragover="preventDefaults(event)" ondragenter="preventDefaults(event)" ondragleave="preventDefaults(event)">
                     <img src="/static/assets/img/upload.png" alt="" class="upload-logo">
                     <div class="file-text">Drag and drop file here or</div>
                     <div class="file-size">XML, pdb file size no more than 10MB</div>
-                    <input type="file" id="fileInput" style="display: none;" />
+                    <input type="file" id="fileInput" style="display: none;" onchange="handleFiles(this.files)"/>
                     <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('fileInput').click();">Select File</button>
                 </div>
+                <div id="file-error-message" style="color: red;"></div>
                 <div class="button-container">
-                    <button type="button" class="btn btn-secondary">Cancel</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearFile()">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload File</button>
                 </div>
             </div>
-            
-            <!-- Login Popup Modal -->
-            <div id="loginModal" class="modal">
+        </div>
+        <!-- Login Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog">
                 <div class="modal-content">
-                    <span class="close-btn">&times;</span>
-                    <form id="loginForm">
-                        <input type="text" placeholder="Username" name="username" required>
-                        <input type="password" placeholder="Password" name="password" required>
-                        <button type="submit">Login</button>
-                    </form>
-                    <button onclick="continueAsGuest()">Continue as Guest</button>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="login-form" action="/login" method="post">
+                            <div class="formtitle">
+                                <h3>Login</h3>
+                                <p>Login to access your Debug Force account</p>
+                            </div>
+                            <div id="error-message" style="color: red;"></div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                            </div>
+                            <div class="text-end">
+                                <a href="/forgot-password">Forgot Password?</a>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="alreadyacc">Don't have an account? <a href="/register">Sign up</a></div>
+                    </div>
                 </div>
             </div>
-            
-            <script>
-                const dropArea = document.getElementById('dropArea');
-
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, preventDefaults, false);
-                });
-
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-
-                dropArea.addEventListener('drop', handleDrop, false);
-
-                function handleDrop(e) {
-                    let dt = e.dataTransfer;
-                    let files = dt.files;
-
-                    handleFiles(files);
-                }
-
-                // File input change handler
-                document.getElementById('fileInput').addEventListener('change', function(e) {
-                    handleFiles(e.target.files);
-                });
-
-                function handleFiles(files) {
-                    ([...files]).forEach(uploadFile);
-                }
-
-                function uploadFile() {
-                    const fileInput = document.querySelector('input[type="file"]');
-                    const file = fileInput.files[0];
-                
-                    if (!file) {
-                        console.log('No file selected');
-                        return;
-                    }
-                
-                    const formData = new FormData();
-                    formData.append('file', file);
-                
-                    fetch('/upload', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            console.log('File uploaded successfully:', data.filename);
-                            alert('File uploaded successfully!');
-                        } else {
-                            console.log('Error uploading file:', data.error);
-                            alert('Error uploading file. Please try again.');
-                        }
-                    })
-                    .catch(error => {
-                        console.log('Error:', error);
-                        alert('Error uploading file. Please try again.');
-                    });
-                }
-                function checkLoginStatus() {
-                    fetch('/check_login', { method: 'GET', credentials: 'same-origin' })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(response.statusText);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.logged_in) {
-                                // User is logged in
-                                showLogoutButton();
-                            } else {
-                                // User is not logged in
-                                showLoginRegisterButtons();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error checking login status:', error);
-                        });
-                }
-                
-                function showLogoutButton() {
-                    // Code to show the logout button and hide login/register buttons
-                    document.getElementById('logoutButton').style.display = 'block';
-                    document.getElementById('loginButton').style.display = 'none';
-                    document.getElementById('registerButton').style.display = 'none';
-                }
-                
-                function showLoginRegisterButtons() {
-                    // Code to show the login/register buttons and hide logout button
-                    document.getElementById('logoutButton').style.display = 'none';
-                    document.getElementById('loginButton').style.display = 'block';
-                    document.getElementById('registerButton').style.display = 'block';
-                }
-                
-                // Call checkLoginStatus when the page loads
-                window.addEventListener('load', checkLoginStatus);
-                
-        
-                document.querySelector('.close-btn').addEventListener('click', function () {
-                    document.getElementById('loginModal').style.display = 'none';
-                });
-        
-                document.getElementById('loginForm').addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-                    fetch('/login', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'same-origin'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('loginModal').style.display = 'none';
-                        } else {
-                            alert(data.error);
-                        }
-                    });
-                });
-        
-                function continueAsGuest() {
-                    document.getElementById('loginModal').style.display = 'none';
-                    alert('Continuing as guest...');
-                }
-            </script>
-            
-            
-
         </div>
     </section>
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
-      <div class="footer-top">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row gy-4">
+                    <div class="col-lg-5 col-md-12 footer-info">
+                        <a href="index.html" class="logo d-flex align-items-center">
+                            <img src="/static/assets/img/logo.png" alt="" />
+                        </a>
+                        <p>
+                            Cras fermentum odio eu feugiat lide par naso tierra. Justo eget
+                            nada terra videa magna derita valies darta donna mare fermentum
+                            iaculis eu non diam phasellus.
+                        </p>
+                        <div class="social-links mt-3">
+                            <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-6 footer-links">
+                        <h4>Useful Links</h4>
+                        <ul>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Services</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-2 col-6 footer-links">
+                        <h4>Our Services</h4>
+                        <ul>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Web Design</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Web Development</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Product Management</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Marketing</a></li>
+                            <li><i class="bi bi-chevron-right"></i> <a href="#">Graphic Design</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+                        <h4>Contact Us</h4>
+                        <p>
+                            A108 Adam Street <br />
+                            New York, NY 535022<br />
+                            United States <br /><br />
+                            <strong>Phone:</strong> +1 5589 55488 55<br />
+                            <strong>Email:</strong> info@example.com<br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="container">
-          <div class="row gy-4">
-            <div class="col-lg-5 col-md-12 footer-info">
-              <a href="index.html" class="logo d-flex align-items-center">
-                <img src="/static/assets/img/logo.png" alt="" />
-              </a>
-              <p>
-                Cras fermentum odio eu feugiat lide par naso tierra. Justo eget
-                nada terra videa magna derita valies darta donna mare fermentum
-                iaculis eu non diam phasellus.
-              </p>
-              <div class="social-links mt-3">
-                <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-                <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-                <a href="#" class="instagram"
-                  ><i class="bi bi-instagram"></i
-                ></a>
-                <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-              </div>
+            <div class="copyright">
+                &copy; Copyright <strong><span>Debug Force</span></strong>. All Rights Reserved
             </div>
-
-            <div class="col-lg-2 col-6 footer-links">
-              <h4>Useful Links</h4>
-              <ul>
-                <li>
-                  <i class="bi bi-chevron-right"></i> <a href="#">Home</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i> <a href="#">About us</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i> <a href="#">Services</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i>
-                  <a href="#">Terms of service</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i>
-                  <a href="#">Privacy policy</a>
-                </li>
-              </ul>
-            </div>
-
-            <div class="col-lg-2 col-6 footer-links">
-              <h4>Our Services</h4>
-              <ul>
-                <li>
-                  <i class="bi bi-chevron-right"></i> <a href="#">Web Design</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i>
-                  <a href="#">Web Development</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i>
-                  <a href="#">Product Management</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i> <a href="#">Marketing</a>
-                </li>
-                <li>
-                  <i class="bi bi-chevron-right"></i>
-                  <a href="#">Graphic Design</a>
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="col-lg-3 col-md-12 footer-contact text-center text-md-start"
-            >
-              <h4>Contact Us</h4>
-              <p>
-                A108 Adam Street <br />
-                New York, NY 535022<br />
-                United States <br /><br />
-                <strong>Phone:</strong> +1 5589 55488 55<br />
-                <strong>Email:</strong> info@example.com<br />
-              </p>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <div class="container">
-        <div class="copyright">
-          &copy; Copyright <strong><span>Debug Force</span></strong
-          >. All Rights Reserved
-        </div>
-      </div>
     </footer>
     <!-- End Footer -->
 
-    <a
-      href="#"
-      class="back-to-top d-flex align-items-center justify-content-center"
-      ><i class="bi bi-arrow-up-short"></i
-    ></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
 
     <!-- Vendor JS Files -->
     <script src="/static/assets/vendor/purecounter/purecounter_vanilla.js"></script>
@@ -422,5 +211,210 @@
 
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
-  </body>
+
+    <!-- Custom JS File -->
+   <!-- Custom JS File -->
+   <script>
+    // Initialize drag and drop functionality
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function handleDrop(e) {
+        preventDefaults(e);
+        let dt = e.dataTransfer;
+        let files = dt.files;
+
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        const file = files[0];
+
+        if (file) {
+            dropArea.droppedFile = file;
+            const fileSize = file.size; // Get the file size
+            document.getElementById('file-error-message').textContent = `Selected File: ${file.name} (${formatBytes(fileSize)})`;
+            $('#file-error-message').show(); // Show the error message
+        }
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function clearFile() {
+        fileInput.value = ''; // Clear the file input
+        document.getElementById('file-error-message').textContent = ''; // Clear the error message
+        $('#file-error-message').hide(); // Hide the error message
+        dropArea.droppedFile = null;
+    }
+
+    function uploadFile() {
+        const droppedFile = dropArea.droppedFile;
+
+        let file = fileInput.files[0] || droppedFile;
+
+        if (!file) {
+            console.log('No file selected');
+            return;
+        }
+
+         if (file.size > 10 * 1024 * 1024) {
+            $('#file-error-message').text('File size exceeds 10MB limit').show();
+            return;
+        } 
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/check_login', { method: 'GET', credentials: 'same-origin' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.logged_in) {
+                    // User is logged in, proceed with file upload
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('File uploaded successfully:', data.filename);
+                            alert('File uploaded successfully!');
+                            window.location.reload();
+                            $('#file-error-message').text('').hide();
+                        } else {
+                            $('#file-error-message').text(data.error).show();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                        $('#file-error-message').text('Error uploading file. Please try again.').show();
+                    });
+                } else {
+                    // User is not logged in, display login modal
+                    $('#loginModal').modal('show');
+                }
+            })
+            .catch(error => {
+                console.error('Error checking login status:', error);
+            });
+    }
+
+    // Call checkLoginStatus when the page loads
+    window.addEventListener('load', checkLoginStatus);
+
+    function checkLoginStatus() {
+        fetch('/check_login', { method: 'GET', credentials: 'same-origin' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.logged_in) {
+                    // User is logged in
+                    showLogoutButton();
+                } else {
+                    showLoginRegisterButtons();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking login status:', error);
+            });
+    }
+
+    function showLogoutButton() {
+        // Code to show the logout button and hide login/register buttons
+        document.getElementById('logoutButton').style.display = 'block';
+        document.getElementById('loginButton').style.display = 'none';
+        document.getElementById('registerButton').style.display = 'none';
+    }
+
+    function showLoginRegisterButtons() {
+        // Code to show the login/register buttons and hide logout button
+        document.getElementById('logoutButton').style.display = 'none';
+        document.getElementById('loginButton').style.display = 'block';
+        document.getElementById('registerButton').style.display = 'block';
+    }
+
+    document.querySelector('.close-btn').addEventListener('click', function () {
+        document.getElementById('loginModal').style.display = 'none';
+    });
+
+    $(document).ready(function(){
+        $('#login-form').submit(function(event){
+            event.preventDefault();
+            
+            $.ajax({
+                url: '/login',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response){
+                    if(response.error){
+                        $('#error-message').text(response.error).show();
+                    }
+                },
+                error: function(error){
+                    console.error('Error:', error);
+                    alert('Error logging in. Please try again.');
+                }
+            });
+        });
+    });
+
+    document.getElementById('logoutButton').addEventListener('click', function(event) {
+        event.preventDefault();
+        fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    });
+
+    // Reset dropArea event listeners when modal is closed
+    $('#loginModal').on('hidden.bs.modal', function () {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.removeEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+    });
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+</script>
+
+
+
+    
+    
+    
+</body>
 </html>

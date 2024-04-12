@@ -9,14 +9,18 @@ import random
 import string
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+from flask_cors import CORS
+import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='static')
+CORS(app)
 app.secret_key = os.urandom(24)
 
 # Configuration
 app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
-app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Allowed file extensions
+app.config['ALLOWED_EXTENSIONS'] = {'xml', 'pdb', 'tif', 'png', 'jpg', 'jpeg' }  # Allowed file extensions
+# app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB limit
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -257,7 +261,7 @@ def send_verification_email(email, verification_token):
         print("Email Sent successfully")
     except Exception as e:
         print(f"An error occurred: {e}")
-
+ 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -274,11 +278,18 @@ def login():
             resp.set_cookie('username', email)
             
             login_user(user_obj)
-            return jsonify(success='match credentials')
+            return render_template('file-upload.html')
         else:
             return jsonify(error='Invalid credentials')
 
     return render_template('login.html')
+
+@app.route('/check_login', methods=['GET'])
+def check_logins():
+    if 'username' in session:
+        return jsonify(logged_in=True)
+    else:
+        return jsonify(logged_in=False)
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -353,19 +364,29 @@ def check_login():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
+        return jsonify(error='No file part'), 400
+    
     file = request.files['file']
-
+    
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify(error='No selected file'), 400
 
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    try:
-        file.save(filepath)
-        return jsonify({"success": "File uploaded successfully", "filename": file.filename}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    if file and allowed_file(file.filename):
+        # Open a file with a secure filename
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Read the file in chunks and save it
+        with open(filepath, 'wb') as f:
+            while True:
+                chunk = file.read(8192)  # Read 8KB at a time
+                if not chunk:
+                    break
+                f.write(chunk)
+        
+        return jsonify(success='File uploaded successfully', filename=filename), 200
+    else:
+        return jsonify(error='Invalid file type'), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
