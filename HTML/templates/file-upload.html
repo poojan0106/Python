@@ -99,32 +99,41 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                        <h5 class="modal-title varificationHeader" id="loginModalLabel">Login</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="login-form" action="/login" method="post">
-                            <div class="formtitle">
-                                <h3>Login</h3>
-                                <p>Login to access your Debug Force account</p>
-                            </div>
-                            <div id="error-message" style="color: red;"></div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                            </div>
-                            <div class="text-end">
-                                <a href="/forgot-password">Forgot Password?</a>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </form>
+                    <div class="formtitle">
+                        <h4 style="font-weight: 600;">OOPS</h4>
+                        <h4 style="font-weight: 600;">looks like you are not login</h4>
                     </div>
-                    <div class="modal-footer">
-                        <div class="alreadyacc">Don't have an account? <a href="/register">Sign up</a></div>
+                    <p style="font-size: smaller;">Please login and you can get Full Generated Report</p>
+                    <div id="error-message" style="color: red;"></div>
+                    <div class="fomrbox">
+                        <form id="login-form" action="/login" method="post">
+                            <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" name="email" id="floatingInput" placeholder="name@example.com" required>
+                                    <label for="floatingInput">Email address</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" name="password" id="floatingInput" placeholder="Password" required>
+                                    <label for="floatingInput">Password</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 me-0 ms-auto text-end">
+                                    <a href="/forgot-password" class="">Forgot Password?</a>   
+                            </div>             
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                                <div class="alreadyacc text-center">Don't have an account? <a href="/register">Sign up</a></div>
+                            </div>
+                            </div>
+                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,10 +227,20 @@
     // Initialize drag and drop functionality
     const dropArea = document.getElementById('dropArea');
     const fileInput = document.getElementById('fileInput');
+    const uploadButton = document.querySelector('.button-container .btn-primary');
+    disableUploadButton(); // Disable the upload button
 
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
+    }
+    function disableUploadButton() {
+        uploadButton.disabled = true;
+    }
+
+    // Function to enable the upload button
+    function enableUploadButton() {
+        uploadButton.disabled = false;
     }
 
     function handleDrop(e) {
@@ -240,6 +259,7 @@
             const fileSize = file.size; // Get the file size
             document.getElementById('file-error-message').textContent = `Selected File: ${file.name} (${formatBytes(fileSize)})`;
             $('#file-error-message').show(); // Show the error message
+            enableUploadButton(); // Enable the upload button
         }
     }
 
@@ -257,6 +277,7 @@
         document.getElementById('file-error-message').textContent = ''; // Clear the error message
         $('#file-error-message').hide(); // Hide the error message
         dropArea.droppedFile = null;
+        disableUploadButton(); // Disable the upload button
     }
 
     function uploadFile() {
