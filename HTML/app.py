@@ -375,7 +375,8 @@ def upload_file():
         # Open a file with a secure filename
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
+        filepath = get_unique_filename(filepath)
+
         # Read the file in chunks and save it
         with open(filepath, 'wb') as f:
             while True:
@@ -387,6 +388,18 @@ def upload_file():
         return jsonify(success='File uploaded successfully', filename=filename), 200
     else:
         return jsonify(error='Invalid file type'), 400
+
+def get_unique_filename(filepath):
+    if not os.path.exists(filepath):
+        return filepath
+
+    filename, file_extension = os.path.splitext(filepath)
+    counter = 1
+    while True:
+        new_filename = f"{filename}_{counter}{file_extension}"
+        if not os.path.exists(new_filename):
+            return new_filename
+        counter += 1
 
 if __name__ == '__main__':
     app.run(debug=True)
