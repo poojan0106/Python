@@ -20,13 +20,11 @@ app.secret_key = os.urandom(24)
 # Configuration
 app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
 app.config['ALLOWED_EXTENSIONS'] = {'xml', 'pdb', 'tif', 'png', 'jpg', 'jpeg' }  # Allowed file extensions
-# app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB limit
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# User model example
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -39,6 +37,7 @@ def load_user(user_id):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# User database
 def init_db():
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
@@ -63,15 +62,7 @@ logged_in_users = set()
 
 init_db()
 
-def delete_user(email):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    
-    cur.execute("DELETE FROM users WHERE email=?", (email,))
-    
-    conn.commit()
-    conn.close()
-
+# method for delete user from database 
 @app.route('/delete_user', methods=['GET', 'POST'])
 def delete_user_route():
     if request.method == 'POST':
@@ -88,80 +79,16 @@ def delete_user_route():
 
     return render_template('deleteuser.html')
 
-def insert_user(first_name, last_name, email, phone, password):
+def delete_user(email):
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
-    cur.execute("INSERT INTO users (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
-                (first_name, last_name, email, phone, generate_password_hash(password)))
+    
+    cur.execute("DELETE FROM users WHERE email=?", (email,))
+    
     conn.commit()
     conn.close()
 
-def get_user(email):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email=?", (email,))
-    user = cur.fetchone()
-    conn.close()
-    return user
-
-def get_all_users():
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users")
-    users = cur.fetchall()
-    conn.close()
-    return users
-
-@app.route('/users')
-def users():
-    users = get_all_users()
-    return render_template('user.html', users=users)
-
-def update_reset_token(email, token):
-    conn = sqlite3.connect('database.db')
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET reset_token=?, reset_token_timestamp=? WHERE email=?", (token, datetime.now(), email))
-    conn.commit()
-    conn.close()
-
-def send_reset_email(email, token):
-    if email:
-        msg = MIMEText(f"Click the following link to reset your password: http://localhost:5000/reset-password/{token}")
-        msg['Subject'] = 'Password Reset'
-        msg['From'] = 'poojangabani12@gmail.com'
-        msg['To'] = email
-
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login('poojangabani12@gmail.com', 'ifiicmbdwvpfmdso')
-            server.sendmail('poojangabani12@gmail.com', email, msg.as_string())
-            server.quit()
-        except Exception as e:
-            print(f"An error occurred: {e}")
-    else:
-        print("Email not found")
-        
-@app.route('/')
-def index():
-    return render_template('index.html')
- 
-@app.route('/validate', methods=['POST'])
-def validate_email():
-    if request.method == 'POST':
-        email = request.form['email']
-        if get_user(email):
-            session['email'] = email
-            return jsonify(success="email validation  successful")
-        else:
-            return jsonify(error="Invalid email")
-
-    return render_template('file-upload.html')
-
-@app.route('/file-uploder')
-def file_uploder():
-    return render_template('file-upload.html')
-        
+# method for insert user in database when they successfully complete registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -200,52 +127,7 @@ def register():
 
     return render_template('registration.html')
 
-@app.route('/verify', methods=['POST'])
-def verify():
-    data = request.json
-    email = data.get('email')
-    code = data.get('code')
-
-    stored_verification_token = session.get('verification_token')
-    stored_verification_token_timestamp = session.get('verification_token_timestamp')
-    user_data = session.get('user_data')
-
-    if not user_data:
-        return jsonify(success=False, error='User data not found. Please try registering again.')
-
-    if stored_verification_token == code:
-        # Check if the verification token has expired (e.g., 5 minutes)
-        token_timestamp = datetime.strptime(stored_verification_token_timestamp, '%Y-%m-%d %H:%M:%S')
-        if datetime.now() - token_timestamp > timedelta(minutes=1):
-            return jsonify(success=False, error='Verification code has expired. Please try again.')
-
-        insert_user(user_data['first_name'], user_data['last_name'], user_data['email'], user_data['phone'], user_data['password'])
-
-        # Clear session data
-        session.pop('verification_token', None)
-        session.pop('verification_token_timestamp', None)
-        session.pop('user_data', None)
-
-        return jsonify(success=True, message='Verification successful')
-    else:
-        return jsonify(success=False, error='Invalid verification code.')
-
-
-@app.route('/resend-verification', methods=['POST'])
-def resend_verification():
-    data = request.json
-    email = data.get('email')
-    
-    # Generate a new verification token
-    new_verification_token = ''.join(random.choices(string.digits, k=6))
-    send_verification_email(email, new_verification_token)
-    
-    # Store new verification token and timestamp in session
-    session['verification_token'] = new_verification_token
-    session['verification_token_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    return jsonify(success=True, message='Verification code has been resent.')
-
+# this method used for send email varification code while register user
 def send_verification_email(email, verification_token):
     msg = MIMEText(f'Your verification code is: {verification_token}')
     msg['Subject'] = 'Email Verification'
@@ -261,7 +143,76 @@ def send_verification_email(email, verification_token):
         print("Email Sent successfully")
     except Exception as e:
         print(f"An error occurred: {e}")
- 
+        
+# this method used for resend email varification code after every 60 sec of time intervel you can send it   
+@app.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.json
+    email = data.get('email')
+    
+    # Generate a new verification token
+    new_verification_token = ''.join(random.choices(string.digits, k=6))
+    send_verification_email(email, new_verification_token)
+    
+    # Store new verification token and timestamp in session
+    session['verification_token'] = new_verification_token
+    session['verification_token_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    return jsonify(success=True, message='Verification code has been resent.')
+
+# this method is used to verify varification code for registration
+@app.route('/verify', methods=['POST'])
+def verify():
+    data = request.json
+    email = data.get('email')
+    code = data.get('code')
+
+    stored_verification_token = session.get('verification_token')
+    stored_verification_token_timestamp = session.get('verification_token_timestamp')
+    user_data = session.get('user_data')
+
+    if not user_data:
+        return jsonify(success=False, error='User data not found. Please try registering again.')
+
+    if stored_verification_token == code:
+        # Check if the verification token has expired
+        token_timestamp = datetime.strptime(stored_verification_token_timestamp, '%Y-%m-%d %H:%M:%S')
+        if datetime.now() - token_timestamp > timedelta(minutes=1): # we can modify token expiration in minutes
+            return jsonify(success=False, error='Verification code has expired. Please try again.')
+
+        insert_user(user_data['first_name'], user_data['last_name'], user_data['email'], user_data['phone'], user_data['password'])
+
+        session.pop('verification_token', None)
+        session.pop('verification_token_timestamp', None)
+        session.pop('user_data', None)
+
+        return jsonify(success=True, message='Verification successful')
+    else:
+        return jsonify(success=False, error='Invalid verification code.')
+
+
+def insert_user(first_name, last_name, email, phone, password):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("INSERT INTO users (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+                (first_name, last_name, email, phone, generate_password_hash(password)))
+    conn.commit()
+    conn.close()
+
+# this method is used for validate email from user database for goto file upload page from the index page using Get Started Button
+@app.route('/validate', methods=['POST'])
+def validate_email():
+    if request.method == 'POST':
+        email = request.form['email']
+        if get_user(email):
+            session['email'] = email
+            return jsonify(success="email validation successful")
+        else:
+            return jsonify(error="Invalid email")
+
+    return render_template('file-upload.html')
+
+# this method is used for user login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -284,13 +235,28 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/check_login', methods=['GET'])
-def check_logins():
-    if 'username' in session:
-        return jsonify(logged_in=True)
-    else:
-        return jsonify(logged_in=False)
+def get_user(email):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email=?", (email,))
+    user = cur.fetchone()
+    conn.close()
+    return user
 
+# method for logout functionality
+@app.route('/logout')
+@login_required
+def logout():
+    
+    logout_user()
+    if 'username' in session:
+        logged_in_users.remove(session['username'])
+        session.pop('email', None)
+        session.pop('username', None)
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('login'))
+
+# this method is used for forgot password functionality
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
@@ -306,6 +272,7 @@ def forgot_password():
 
     return render_template('forgot-password.html')
 
+# method for reset password
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     users = get_all_users()
@@ -319,7 +286,7 @@ def reset_password(token):
         user = [x for x in users if x[6] == token]  # assuming reset_token is the 7th column
         if user:
             token_timestamp = datetime.strptime(user[0][7], '%Y-%m-%d %H:%M:%S.%f')
-            if datetime.now() - token_timestamp > timedelta(minutes=5):
+            if datetime.now() - token_timestamp > timedelta(minutes=5): 
                 return jsonify(error='Token has expired. Please try again and generate new reset password link.')
             
             update_user_password(user[0][3], password)
@@ -327,7 +294,34 @@ def reset_password(token):
         else:
             return jsonify(error='Invalid or expired token.')
 
-    return render_template('reset-password.html', token=token)  # Pass token to the template
+    return render_template('reset-password.html', token=token)
+
+# method for create new token for password reset
+def update_reset_token(email, token):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET reset_token=?, reset_token_timestamp=? WHERE email=?", (token, datetime.now(), email))
+    conn.commit()
+    conn.close()
+
+# after 5 minutes reset password link is expired
+def send_reset_email(email, token):
+    if email:
+        msg = MIMEText(f"Click the following link to reset your password: http://localhost:5000/reset-password/{token}")
+        msg['Subject'] = 'Password Reset'
+        msg['From'] = 'poojangabani12@gmail.com'
+        msg['To'] = email
+
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login('poojangabani12@gmail.com', 'ifiicmbdwvpfmdso')
+            server.sendmail('poojangabani12@gmail.com', email, msg.as_string())
+            server.quit()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        print("Email not found")
 
 def update_user_password(email, new_password):
     conn = sqlite3.connect('database.db')
@@ -336,24 +330,27 @@ def update_user_password(email, new_password):
     cur.execute("UPDATE users SET password=? WHERE email=?", (hashed_password, email))
     conn.commit()
     conn.close()
-    
-@app.route('/logout')
-@login_required
-def logout():
-    
-    logout_user()
+ 
+def get_all_users():
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users")
+    users = cur.fetchall()
+    conn.close()
+    return users
+
+# method to render file uploder page
+@app.route('/file-uploder')
+def file_uploder():
+    return render_template('file-upload.html')
+
+# method to check when user upload file he/she is logged in or not
+@app.route('/check_login', methods=['GET'])
+def check_logins():
     if 'username' in session:
-        logged_in_users.remove(session['username'])
-        session.pop('email', None)
-        session.pop('username', None)
-    flash('Logged out successfully.', 'success')
-    return redirect(url_for('login'))
-
-@app.route('/innerPage')
-@login_required
-def innerPage():
-    return render_template('inner-page.html')
-
+        return jsonify(logged_in=True)
+    else:
+        return jsonify(logged_in=False)
 
 @app.route('/upload', methods=['GET'])
 def check_login():
@@ -361,6 +358,7 @@ def check_login():
         return jsonify({"error": "User not logged in"}), 401
     return jsonify({"success": "Logged in"}), 200
 
+# method to upload file
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -372,14 +370,13 @@ def upload_file():
         return jsonify(error='No selected file'), 400
 
     if file and allowed_file(file.filename):
-        # Open a file with a secure filename
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         filepath = get_unique_filename(filepath)
 
         # Read the file in chunks and save it
         with open(filepath, 'wb') as f:
-            while True:
+            while True: 
                 chunk = file.read(8192)  # Read 8KB at a time
                 if not chunk:
                     break
@@ -400,6 +397,22 @@ def get_unique_filename(filepath):
         if not os.path.exists(new_filename):
             return new_filename
         counter += 1
+
+# method for show user data
+@app.route('/users')
+def users():
+    users = get_all_users()
+    return render_template('user.html', users=users)
+
+# method for redirect initially to index page
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/innerPage')
+@login_required
+def innerPage():
+    return render_template('inner-page.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
