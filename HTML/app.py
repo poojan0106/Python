@@ -1,7 +1,8 @@
 import secrets
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash, current_app
+from flask import Flask, redirect, render_template, request, jsonify, session, url_for, flash, current_app, send_file, send_from_directory
 import os
+import io
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
@@ -10,7 +11,6 @@ import string
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from flask_cors import CORS
-import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='static')
@@ -18,8 +18,9 @@ CORS(app)
 app.secret_key = os.urandom(24)
 
 # Configuration
-app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
-app.config['ALLOWED_EXTENSIONS'] = {'xml', 'pdb', 'tif', 'png', 'jpg', 'jpeg' }  # Allowed file extensions
+# app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
+app.config['ALLOWED_EXTENSIONS'] = {'log', 'pdb', 'tif', 'png', 'jpg', 'jpeg' }  # Allowed file extensions
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -55,6 +56,15 @@ def init_db():
     );
     ''')
     
+    conn.execute('''
+    CREATE TABLE IF NOT EXISTS files (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename TEXT NOT NULL,
+        file_data BLOB NOT NULL,
+        user_email TEXT NOT NULL,
+        FOREIGN KEY (user_email) REFERENCES users (email)
+    );
+    ''')
     print("Table updated successfully")
     conn.close()
     
@@ -352,51 +362,102 @@ def check_logins():
     else:
         return jsonify(logged_in=False)
 
-@app.route('/upload', methods=['GET'])
-def check_login():
-    if 'email' not in session or session['email'] not in logged_in_users:
-        return jsonify({"error": "User not logged in"}), 401
-    return jsonify({"success": "Logged in"}), 200
-
 # method to upload file
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify(error='No file part'), 400
-    
+
     file = request.files['file']
-    
+
     if file.filename == '':
         return jsonify(error='No selected file'), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        filepath = get_unique_filename(filepath)
+    filename = secure_filename(file.filename)
+    email = session.get('email')
+    
+    if not email:
+        return jsonify(error='User not logged in'), 401
 
-        # Read the file in chunks and save it
-        with open(filepath, 'wb') as f:
-            while True: 
-                chunk = file.read(8192)  # Read 8KB at a time
-                if not chunk:
-                    break
-                f.write(chunk)
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT filename FROM files WHERE user_email=?', (email,))
+    existing_filenames = [row[0] for row in cursor.fetchall()]
+    conn.close()
+
+    if filename in existing_filenames:
+        name, extension = os.path.splitext(filename)
+        counter = 1
+        while True:
+            new_filename = f"{name}_{counter}{extension}"
+            if new_filename not in existing_filenames:
+                filename = new_filename
+                break
+            counter += 1
+
+    file_data = file.read() 
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO files (filename, file_data, user_email) VALUES (?, ?, ?)', (filename, file_data, email))
+        conn.commit()
+        conn.close()
         
         return jsonify(success='File uploaded successfully', filename=filename), 200
-    else:
-        return jsonify(error='Invalid file type'), 400
+    except Exception as e:
+        return jsonify(error='Error uploading file: ' + str(e)), 500
 
-def get_unique_filename(filepath):
-    if not os.path.exists(filepath):
-        return filepath
+    
+# method to show files uploaded by the user
+@app.route('/user-files')
+def user_files():
+    try:
+        email = session.get('email')
+        
+        if not email:
+            return jsonify(error='User not logged in'), 401
 
-    filename, file_extension = os.path.splitext(filepath)
-    counter = 1
-    while True:
-        new_filename = f"{filename}_{counter}{file_extension}"
-        if not os.path.exists(new_filename):
-            return new_filename
-        counter += 1
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT filename FROM files WHERE user_email=?', (email,))
+        files = cursor.fetchall()
+        conn.close()
+        
+        return render_template('uploded-files.html', files=files)
+    except Exception as e:
+        return jsonify(error='Error retrieving files: ' + str(e)), 500
+
+@app.route('/view-file/<filename>')
+@login_required
+def view_file(filename):
+    try:
+        email = session.get('email')
+        
+        if not email:
+            return jsonify(error='User not logged in'), 401
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT file_data FROM files WHERE filename=? AND user_email=?', (filename, email))
+        file_data = cursor.fetchone()
+        conn.close()
+
+        if file_data:
+            filename_parts = filename.split('.')
+            file_extension = filename_parts[-1].lower()
+
+            if file_extension == 'log':
+                log_content = file_data[0].decode('utf-8')
+                return render_template('log-preview.html', log_content=log_content)
+            elif file_extension in ['jpeg', 'png', 'gif']:
+                return send_file(io.BytesIO(file_data[0]), mimetype='image/' + file_extension)
+            else:
+                return send_file(io.BytesIO(file_data[0]), mimetype='application/octet-stream', as_attachment=False)
+        else:
+            return jsonify(error='File not found'), 404
+    except Exception as e:
+        return jsonify(error='Error retrieving file: ' + str(e)), 500   
 
 # method for show user data
 @app.route('/users')
