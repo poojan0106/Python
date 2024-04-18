@@ -4,13 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uploaded Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        a:hover {
+            color: #0056b3;
+        }
+        .delete-icon {
+            color: #dc3545;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Uploaded Files</h1>
-    <ul>
-        {% for file in files %}
-        <li><a href="{{ url_for('view_file', filename=file[0]) }}" target="_blank">{{ file[0] }}</a></li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr id="file-row-{{ loop.index }}">
+                <td>{{ file[0] }}</td>
+                <td>
+                    <a href="{{ url_for('view_file', filename=file[0]) }}" target="_blank">View</a>
+                    <span class="delete-icon" onclick="confirmDelete({{ loop.index }})">Delete</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        function confirmDelete(rowIndex) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                const row = document.getElementById(`file-row-${rowIndex}`);
+                if (row) {
+                    const filenameCell = row.querySelector('td:first-child');
+                    if (filenameCell) {
+                        const filename = filenameCell.textContent.trim();
+                        fetch('/delete-file', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ filename: filename }),
+                            credentials: 'same-origin'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                row.remove();
+                                alert('File deleted successfully!');
+                            } else {
+                                alert('Error deleting file: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting file:', error);
+                            alert('Error deleting file. Please try again.');
+                        });
+                    } else {
+                        console.error('Filename cell not found');
+                    }
+                } else {
+                    console.error('Row not found');
+                }
+            }
+        }
+    </script>
 </body>
 </html>

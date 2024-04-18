@@ -459,6 +459,25 @@ def view_file(filename):
     except Exception as e:
         return jsonify(error='Error retrieving file: ' + str(e)), 500   
 
+@app.route('/delete-file', methods=['POST'])
+@login_required
+def delete_file():
+    if request.method == 'POST':
+        filename = request.form.get('filename')
+
+        # Perform deletion action here
+        try:
+            # Code to delete the file from the database
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM files WHERE filename=? AND user_email=?', (filename, session.get('email')))
+            conn.commit()
+            conn.close()
+
+            return jsonify(success=True, message='File deleted successfully')
+        except Exception as e:
+            return jsonify(error=str(e)), 500
+
 # method for show user data
 @app.route('/users')
 def users():
