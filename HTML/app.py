@@ -8,8 +8,6 @@ import smtplib
 from email.mime.text import MIMEText
 import random
 import string
-import json
-import re
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -20,7 +18,6 @@ CORS(app)
 app.secret_key = os.urandom(24)
 
 # Configuration
-# app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
 app.config['ALLOWED_EXTENSIONS'] = {'log', 'txt'}  # Allowed file extensions
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
@@ -430,6 +427,7 @@ def user_files():
     except Exception as e:
         return jsonify(error='Error retrieving files: ' + str(e)), 500
 
+# method to preview files uploaded by the user
 @app.route('/view-file/<filename>')
 @login_required
 def view_file(filename):
@@ -449,11 +447,9 @@ def view_file(filename):
             filename_parts = filename.split('.')
             file_extension = filename_parts[-1].lower()
 
-            if file_extension == 'log':
+            if file_extension in ['log', 'txt']:
                 log_content = file_data[0].decode('utf-8')
                 return render_template('log-preview.html', log_content=log_content)
-            elif file_extension in ['jpeg', 'png', 'gif']:
-                return send_file(io.BytesIO(file_data[0]), mimetype='image/' + file_extension)
             else:
                 return send_file(io.BytesIO(file_data[0]), mimetype='application/octet-stream', as_attachment=False)
         else:
@@ -461,6 +457,7 @@ def view_file(filename):
     except Exception as e:
         return jsonify(error='Error retrieving file: ' + str(e)), 500   
 
+# method to delete files uploaded by the user
 @app.route('/delete-file', methods=['POST'])
 @login_required
 def delete_file():
@@ -479,7 +476,8 @@ def delete_file():
             return jsonify(success=True, message='File deleted successfully')
         except Exception as e:
             return jsonify(error=str(e)), 500
-        
+
+# method to generate report of files uploaded by the user
 @app.route('/generate-report')
 @login_required
 def generate_report():
@@ -489,7 +487,6 @@ def generate_report():
     if not email:
         return jsonify(error='User not logged in'), 401
 
-    # Fetch file data from the database based on the filename and user email
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('SELECT file_data FROM files WHERE filename=? AND user_email=?', (filename, email))
@@ -498,7 +495,6 @@ def generate_report():
     if not file_data:
         return jsonify({'error': 'No file provided'}), 400
     parsed_data = parse_debug_log(file_data)
-    # You can now return the JSON output as an API response
     return render_template('generate-report.html', flattened_data=parsed_data)
 
 def parse_debug_log(log):
@@ -550,7 +546,6 @@ def parse_debug_log(log):
 
                 operation['end_time'] = timestamp.strftime(format_str)
                 operation['time_consumed'] = (timestamp - datetime.strptime(operation['start_time'], format_str) + timedelta(microseconds=(nanoseconds / 1000))).total_seconds()
-    # You can now return the JSON output as an API response
     return output
 
 
