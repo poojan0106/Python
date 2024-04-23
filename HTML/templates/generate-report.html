@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Files</title>
+    <style>
+        .flow-chart-rect {
+            font-size: 18px;
+            text-anchor: middle;
+        }
+
+        .scrollable-container {
+            width: 100%;
+            height: 400px; /* Set the desired height */
+            overflow-y: auto;
+        }
+
+        .flow-chart svg line:last-child {
+            display: none;
+        }
+
+        .flowcustom {
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
+
+        }
+
+        .flowcustom ul.main-flow {
+            display: flex;
+            gap: 40px;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: center;
+            position: relative;
+            z-index: 9;
+
+        }
+
+        .flowbox {
+            background: #8de9ff;
+            width: auto;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            word-wrap: break-word;
+            max-width: 400px;
+            word-break: break-word;
+            min-width: 120px;
+            position: relative;
+            z-index: 3;
+            padding: 20px 10px;
+            line-height: normal;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .time {
+            text-align: center;
+        }
+
+        .flowbox-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            gap: 40px;
+        }
+        .main-flow:after {
+            content: " ";
+            height: 100%;
+            width: 3px;
+            background: #707070;
+            display: block;
+            position: absolute;
+            bottom: 100%;
+            top: 0;
+            z-index: -1;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+        }
+        
+        .flowbox-container:before {
+            content: "";
+            width: 3px;
+            background: #707070;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0; /* Ensure line is behind boxes */
+        }
+
+        .flowbox-container:first-child:before {
+            top: 50%;
+        }
+
+        .flowbox-container:last-child:before {
+            bottom: 50%;
+        }
+        .flowbox-container ul {
+            padding: 0;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Uploaded Files</h1>
+    <div class="scrollable-container">
+        <div class="flowcustom">
+            <ul class="main-flow">
+                {% for ele in flattened_data %}
+                    <span>
+                        <div class="flowbox-container">
+                            <div class="flowbox parent-box">
+                                <span>{{ ele.method }}</span><br/>
+                                <span class="time">Time Consumed - {{ ele.time_consumed }} sec</span>
+                            </div>
+                            {% if ele._children %}
+                                <ul>
+                                    {% for child in ele._children %}
+                                        <span>
+                                            <div class="flowbox child-box">
+                                                <span>{{ child.method }}</span><br/>
+                                                <span class="time">Time Consumed - {{ child.time_consumed }} sec</span>
+                                            </div>
+                                        </span>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </span>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

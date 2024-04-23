@@ -8,6 +8,8 @@ import smtplib
 from email.mime.text import MIMEText
 import random
 import string
+import json
+import re
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from flask_cors import CORS
@@ -19,7 +21,7 @@ app.secret_key = os.urandom(24)
 
 # Configuration
 # app.config['UPLOAD_FOLDER'] = 'C:\\Users\\pooja\\OneDrive\\Desktop\\helo'  # Update with your upload folder path
-app.config['ALLOWED_EXTENSIONS'] = {'log', 'pdb', 'tif', 'png', 'jpg', 'jpeg' }  # Allowed file extensions
+app.config['ALLOWED_EXTENSIONS'] = {'log', 'txt'}  # Allowed file extensions
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 login_manager = LoginManager()
@@ -463,11 +465,11 @@ def view_file(filename):
 @login_required
 def delete_file():
     if request.method == 'POST':
-        filename = request.form.get('filename')
+        filename = request.json.get('filename')
 
-        # Perform deletion action here
+        if not filename:
+            return jsonify(error='Filename is required'), 400
         try:
-            # Code to delete the file from the database
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
             cursor.execute('DELETE FROM files WHERE filename=? AND user_email=?', (filename, session.get('email')))
@@ -477,6 +479,80 @@ def delete_file():
             return jsonify(success=True, message='File deleted successfully')
         except Exception as e:
             return jsonify(error=str(e)), 500
+        
+@app.route('/generate-report')
+@login_required
+def generate_report():
+    filename = request.args.get('filename')
+    email = session.get('email')
+    
+    if not email:
+        return jsonify(error='User not logged in'), 401
+
+    # Fetch file data from the database based on the filename and user email
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT file_data FROM files WHERE filename=? AND user_email=?', (filename, email))
+    file_content = cursor.fetchone()
+    file_data = '\n'.join(line.decode('utf-8') for line in file_content).split('\n')
+    if not file_data:
+        return jsonify({'error': 'No file provided'}), 400
+    parsed_data = parse_debug_log(file_data)
+    # You can now return the JSON output as an API response
+    return render_template('generate-report.html', flattened_data=parsed_data)
+
+def parse_debug_log(log):
+    output = []  # List to store the output
+    stack = []  # Stack to track nested operations
+    counter = 0
+
+    for line in log:
+        parts = line.split('|')  # Split the line by '|'
+        if 'CODE_UNIT_STARTED' in parts:
+            counter += 1
+            method = (parts[-1].strip() if len(parts) < 6 else parts[-2].strip())
+            # Extract the time portion and nanoseconds portion
+            timestamp_str = parts[0]
+            timestamp_parts = timestamp_str.split()
+            time_str = timestamp_parts[0]
+            nanoseconds_str = timestamp_parts[1].strip('()')
+
+            # Parse time and nanoseconds
+            format_str = "%H:%M:%S.%f"
+            timestamp = datetime.strptime(time_str, format_str)
+            nanoseconds = int(nanoseconds_str)
+
+            operation = {'key': counter, 'start_time': timestamp.strftime(format_str), 'method': method}
+
+            if stack:  # If there's a parent operation, add this as its child
+                # Check if the parent operation already has children
+                if '_children' not in stack[-1]:
+                    stack[-1]['_children'] = []  # Initialize _children if not present
+                stack[-1]['_children'].append(operation)
+            else:  # If not, this is a top-level operation
+                output.append(operation)
+            stack.append(operation)  # Push this operation to the stack
+
+        elif 'CODE_UNIT_FINISHED' in parts:
+            if stack:  # If there's a current operation
+                operation = stack.pop()  # Pop the current operation from the stack
+
+                # Extract the time portion and nanoseconds portion
+                timestamp_str = parts[0]
+                timestamp_parts = timestamp_str.split()
+                time_str = timestamp_parts[0]
+                nanoseconds_str = timestamp_parts[1].strip('()')
+
+                # Parse time and nanoseconds
+                format_str = "%H:%M:%S.%f"
+                timestamp = datetime.strptime(time_str, format_str)
+                nanoseconds = int(nanoseconds_str)
+
+                operation['end_time'] = timestamp.strftime(format_str)
+                operation['time_consumed'] = (timestamp - datetime.strptime(operation['start_time'], format_str) + timedelta(microseconds=(nanoseconds / 1000))).total_seconds()
+    # You can now return the JSON output as an API response
+    return output
+
 
 # method for show user data
 @app.route('/users')
